@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casino Games</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .left-column {
+            background-color: #f0f0f0; /* Light gray background for left column */
+            width: 200px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Align buttons to the top */
+            align-items: center;
+        }
+
+        .button {
+            background-color: red;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .money-counter {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .right-column {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-div {
+            background-color: #3275a8;
+            color: black;
+            padding: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .bottom-div {
+            flex-grow: 1;
+            border: 2px solid white;
+            padding: 20px;
+            margin: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #8BC34A; /* Lime Green */
+            background-image: 
+              linear-gradient(to right, 
+                transparent 50%, #4CAF50 50%),
+              linear-gradient(to bottom, 
+                transparent 50%, #4CAF50 50%);
+            background-size: 32px 32px; /* Adjust size as needed */
+            background-position: 0 0;
+        }
+
+        .card {
+            width: 70px;
+            height: 100px;
+            background-color: red;
+            border: 2px solid white;
+            margin: 5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .card-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .hand {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .score {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-column">
+            <button class="button">Slots</button>
+            <button class="button" id="blackjack-button">Blackjack</button>
+            <button class="button">Roulette</button>
+            <div class="money-counter">Money: <span id="money-amount">1000</span></div>
+            <button class="button" id="back-home-button">Back Home</button>
+        </div>
+        <div class="right-column">
+            <div class="top-div">Welcome to the Casino!</div>
+            <div class="bottom-div" id="blackjack-game">
+                <div>Player's Hand: <div class="hand" id="player-hand"></div></div>
+                <div class="score">Player Score: <span id="player-score"></span></div>
+                <div>Dealer's Hand: <div class="hand" id="dealer-hand"></div></div>
+                <div class="score">Dealer Score: <span id="dealer-score"></span></div>
+                <button id="hit-button">Hit</button>
+                <button id="stand-button">Stand</button>
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to set a cookie
+        function setCookie(cname, cvalue, exdays) {
+            const d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + d.toUTCString();
+            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }
+
+        // Function to get a cookie
+        function getCookie(cname) {
+            const name = cname + "=";
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const ca = decodedCookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        // Load money from cookies or set default
+        let currentMoney = getCookie("casinoMoney");
+        if (currentMoney === "") {
+            currentMoney = 1000;
+            setCookie("casinoMoney", currentMoney, 365); // Cookie expires in 1 year
+        }
+
+        document.getElementById("money-amount").textContent = currentMoney;
+
+        // Function to create a card element
+        function createCard(value, suit) {
+            const card = document.createElement("div");
+            card.classList.add("card");
+            card.innerHTML = `
+                <div class="card-value">${value}</div>
+                <div>${suit}</div>
+            `;
+            return card;
+        }
+
+        // Function to get a random card
+        function getRandomCard() {
+            const values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+            const suits = ["♠", "♥", "♦", "♣"];
+            const randomValue = values[Math.floor(Math.random() * values.length)];
+            const randomSuit = suits[Math.floor(Math.random() * suits.length)];
+            return { value: randomValue, suit: randomSuit };
+        }
+
+        // Function to calculate score (handles Ace value)
+        function calculateScore(cards) {
+            let score = 0;
+            let hasAce = false;
+            for (const card of cards) {
+                if (card.value === "J" || card.value === "Q" || card.value === "K") {
+                    score += 10;
+                } else if (card.value === "A") {
+                    hasAce = true;
+                    score += 11; // Treat Ace as 11 initially
+                } else {
+                    score += parseInt(card.value);
+                }
+            }
+            // Adjust Ace value to 1 if needed to avoid busting
+            if (hasAce && score > 21) {
+                score -= 10;
+            }
+            return score;
+        }
+
+        // Function to determine winner
+        function determineWinner(playerScore, dealerScore) {
+            if (playerScore > 21) {
+                return "Dealer Wins!";
+            } else if (dealerScore > 21) {
+                return "Player Wins!";
+            } else if (playerScore > dealerScore) {
+                return "Player Wins!";
+            } else if (dealerScore > playerScore) {
+                return "Dealer Wins!";
+            } else {
+                return "It's a Tie!";
+            }
+        }
+
+        // Function to start a new game
+        function startGame() {
+            const blackjackGame = document.getElementById("blackjack-game");
+            blackjackGame.innerHTML = ""; // Clear previous game
+
+            // Initialize game variables
+            let playerCards = [getRandomCard(), getRandomCard()];
+            let dealerCards = [getRandomCard(), getRandomCard()];
+            let playerScore = calculateScore(playerCards);
+            let dealerScore = calculateScore(dealerCards);
+
+            // Display initial cards
+            const playerHand = document.getElementById("player-hand");
+            playerHand.innerHTML = "";
+            playerCards.forEach(card => playerHand.appendChild(createCard(card.value, card.suit)));
+
+            const dealerHand = document.getElementById("dealer-hand");
+            dealerHand.innerHTML = "";
+            dealerCards.forEach(card => dealerHand.appendChild(createCard(card.value, card.suit))); // Added this line
+            dealerHand.appendChild(createCard("?", "?")); // Hide dealer's second card
+
+            // Update score display
+            document.getElementById("player-score").textContent = playerScore;
+            document.getElementById("dealer-score").textContent = "?";
+
+            // Check for initial Blackjack
+            if (playerScore === 21) {
+                document.getElementById("result").textContent = "Player Blackjack! You Win!";
+                endGame();
+                return;
+            }
+
+            // Player's turn
+            document.getElementById("hit-button").disabled = false;
+            document.getElementById("stand-button").disabled = false;
+        }
+
+        // Function to handle player's hit
+        function hit() {
+            const playerHand = document.getElementById("player-hand");
+            const playerScoreElement = document.getElementById("player-score");
+            const playerCards = getPlayerCards();
+            const newCard = getRandomCard();
+            playerCards.push(newCard);
+            playerHand.appendChild(createCard(newCard.value, newCard.suit));
+            const playerScore = calculateScore(playerCards);
+            playerScoreElement.textContent = playerScore;
+
+            if (playerScore > 21) {
+                document.getElementById("result").textContent = "Player Busts! Dealer Wins!";
+                endGame();
+            }
+        }
+
+        // Function to handle dealer's turn
+        function dealerTurn() {
+            const dealerHand = document.getElementById("dealer-hand");
+            const dealerScoreElement = document.getElementById("dealer-score");
+            const dealerCards = getDealerCards();
+            let dealerScore = calculateScore(dealerCards);
+
+            dealerHand.innerHTML = "";
+            dealerCards.forEach(card => dealerHand.appendChild(createCard(card.value, card.suit)));
+            dealerScoreElement.textContent = dealerScore;
+
+            while (dealerScore < 17) {
+                const newCard = getRandomCard();
+                dealerCards.push(newCard);
+                dealerScore = calculateScore(dealerCards);
+                dealerHand.innerHTML = "";
+                dealerCards.forEach(card => dealerHand.appendChild(createCard(card.value, card.suit)));
+                dealerScoreElement.textContent = dealerScore;
+            }
+
+            // Determine winner
+            document.getElementById("result").textContent = determineWinner(calculateScore(getPlayerCards()), dealerScore);
+        }
+
+        // Function to end the game
+        function endGame() {
+            document.getElementById("hit-button").disabled = true;
+            document.getElementById("stand-button").disabled = true;
+        }
+
+        // Function to get player's cards (for score calculation)
+        function getPlayerCards() {
+            const playerHand = document.getElementById("player-hand");
+            const playerCards = [];
+            for (let i = 0; i < playerHand.children.length; i++) {
+                const cardValue = playerHand.children[i].querySelector(".card-value").textContent;
+                const cardSuit = playerHand.children[i].querySelector("div:nth-child(2)").textContent;
+                playerCards.push({ value: cardValue, suit: cardSuit });
+            }
+            return playerCards;
+        }
+
+        // Function to get dealer's cards (for score calculation)
+        function getDealerCards() {
+            const dealerHand = document.getElementById("dealer-hand");
+            const dealerCards = [];
+            for (let i = 0; i < dealerHand.children.length; i++) {
+                const cardValue = dealerHand.children[i].querySelector(".card-value").textContent;
+                const cardSuit = dealerHand.children[i].querySelector("div:nth-child(2)").textContent;
+                dealerCards.push({ value: cardValue, suit: cardSuit });
+            }
+            return dealerCards;
+        }
+
+        // Event listeners for Blackjack button, Hit button, and Stand button
+        blackjackButton.addEventListener("click", startGame);
+        document.getElementById("hit-button").addEventListener("click", hit);
+        document.getElementById("stand-button").addEventListener("click", () => {
+            endGame();
+            dealerTurn();
+        });
+
+        // Event listener for the "Back Home" button
+        const backHomeButton = document.getElementById("back-home-button");
+        backHomeButton.addEventListener("click", () => {
+            window.location.href = "https://www.replit.com/"; // Replace with your desired link
+        });
+    </script>
+</body>
+</html>
