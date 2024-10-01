@@ -38,11 +38,23 @@
             margin-bottom: 10px;
             cursor: pointer;
             font-size: 18px;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: darkred;
         }
 
         .money-counter {
             font-size: 24px;
             margin-bottom: 20px;
+        }
+
+        .bet-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
         }
 
         .right-column {
@@ -99,11 +111,26 @@
         .score {
             margin-top: 10px;
         }
+
+        @media (max-width: 600px) {
+            .left-column {
+                width: 100%;
+                padding: 10px;
+            }
+            .button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .bet-input {
+                width: calc(100% - 20px);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="left-column">
+            <input type="text" id="bet-input" class="bet-input" placeholder="Enter your bet" />
             <button class="button" id="slots-button">Slots</button>
             <button class="button" id="blackjack-button">Blackjack</button>
             <button class="button" id="roulette-button">Roulette</button>
@@ -128,6 +155,8 @@
         localStorage.setItem("casinoMoney", currentMoney);
         document.getElementById("money-amount").textContent = currentMoney;
         let currentBet = 0;
+        let wins = 0;
+        let losses = 0;
 
         function createCard(value, suit) {
             const card = document.createElement("div");
@@ -184,20 +213,23 @@
 
             if (playerScore > 21) {
                 message = "Player Busts! Dealer Wins!";
-                // No money lost
+                losses++;
             } else if (dealerScore > 21) {
                 message = "Player Wins!";
                 currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
+                wins++;
             } else if (playerScore > dealerScore) {
                 message = "Player Wins!";
                 currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
+                wins++;
             } else if (dealerScore > playerScore) {
                 message = "Dealer Wins!";
-                // No money lost
+                losses++;
             } else {
                 message = "It's a Tie!";
-                // No money lost
             }
+
+            document.getElementById("result").textContent = `${message} (Wins: ${wins}, Losses: ${losses})`;
             return message;
         }
 
@@ -249,7 +281,7 @@
 
             if (playerScore > 21) {
                 document.getElementById("result").textContent = "Player Busts! Dealer Wins!";
-                // No money lost
+                losses++;
                 localStorage.setItem("casinoMoney", currentMoney);
                 document.getElementById("money-amount").textContent = currentMoney;
                 endGame();
@@ -264,7 +296,7 @@
             }));
             let dealerScore = calculateScore(dealerCards);
 
-            while (dealerScore <= 17) {
+            while (dealerScore < 17) {
                 const newCard = getRandomCard();
                 dealerHand.appendChild(createCard(newCard.value, newCard.suit));
                 dealerCards.push(newCard);
@@ -277,7 +309,7 @@
                 suit: card.children[1].textContent
             })));
 
-            document.getElementById("result").textContent = determineWinner(playerScore, dealerScore, currentBet);
+            determineWinner(playerScore, dealerScore, currentBet);
             localStorage.setItem("casinoMoney", currentMoney);
             document.getElementById("money-amount").textContent = currentMoney;
         }
@@ -288,25 +320,22 @@
         }
 
         document.getElementById("blackjack-button").addEventListener("click", () => {
-            let betAmount = prompt("Enter your bet amount:");
-            if (betAmount.startsWith("setmoney=")) {
-                const amount = betAmount.split("=")[1];
-                const parsedAmount = parseInt(amount);
-                if (!isNaN(parsedAmount) && parsedAmount >= 0) {
-                    currentMoney = parsedAmount;
-                    localStorage.setItem("casinoMoney", currentMoney);
-                    document.getElementById("money-amount").textContent = currentMoney;
-                    return;
-                } else {
-                    alert("Invalid amount. Please enter a valid number after 'setmoney='.");
+            const betInput = document.getElementById("bet-input").value;
+            let betAmount;
+
+            if (betInput === ".") {
+                betAmount = currentMoney; // Winning amount equals current money
+                currentMoney += betAmount; // Guarantee a win
+                alert("You win automatically by entering a period! Your balance is now: " + currentMoney);
+                localStorage.setItem("casinoMoney", currentMoney);
+                document.getElementById("money-amount").textContent = currentMoney;
+                return;
+            } else {
+                betAmount = parseInt(betInput);
+                if (isNaN(betAmount) || betAmount <= 0 || betAmount > currentMoney) {
+                    alert("Invalid bet amount. Please enter a valid amount.");
                     return;
                 }
-            }
-
-            betAmount = parseInt(betAmount);
-            if (isNaN(betAmount) || betAmount <= 0 || betAmount > currentMoney) {
-                alert("Invalid bet amount. Please enter a valid amount.");
-                return;
             }
 
             currentBet = betAmount;
