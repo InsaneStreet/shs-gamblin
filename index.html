@@ -207,30 +207,13 @@
             }
         }
 
-        function determineWinner(playerScore, dealerScore, betAmount) {
-            let message = "";
-            const multiplier = calculateMultiplier(betAmount);
-
-            if (playerScore > 21) {
-                message = "Player Busts! Dealer Wins!";
-                losses++;
-            } else if (dealerScore > 21) {
-                message = "Player Wins!";
-                currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
-                wins++;
-            } else if (playerScore > dealerScore) {
-                message = "Player Wins!";
-                currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
-                wins++;
-            } else if (dealerScore > playerScore) {
-                message = "Dealer Wins!";
-                losses++;
-            } else {
-                message = "It's a Tie!";
-            }
-
-            document.getElementById("result").textContent = `${message} (Wins: ${wins}, Losses: ${losses})`;
-            return message;
+        function declareWin(betAmount) {
+            currentMoney += Math.ceil(betAmount * calculateMultiplier(betAmount)); // Round up winnings
+            localStorage.setItem("casinoMoney", currentMoney);
+            document.getElementById("money-amount").textContent = currentMoney;
+            document.getElementById("result").textContent = "You Win Automatically!";
+            wins++;
+            endGame();
         }
 
         function startGame(betAmount) {
@@ -309,7 +292,30 @@
                 suit: card.children[1].textContent
             })));
 
-            determineWinner(playerScore, dealerScore, currentBet);
+            if (playerScore <= 21) {
+                declareWinner(playerScore, dealerScore, currentBet);
+            } else {
+                document.getElementById("result").textContent = "Player Busts! Dealer Wins!";
+                losses++;
+                localStorage.setItem("casinoMoney", currentMoney);
+                document.getElementById("money-amount").textContent = currentMoney;
+            }
+        }
+
+        function declareWinner(playerScore, dealerScore, betAmount) {
+            let message = "";
+            const multiplier = calculateMultiplier(betAmount);
+
+            if (dealerScore > 21 || playerScore > dealerScore) {
+                message = "Player Wins!";
+                declareWin(betAmount);
+            } else if (dealerScore > playerScore) {
+                message = "Dealer Wins!";
+                losses++;
+            } else {
+                message = "It's a Tie!";
+            }
+            document.getElementById("result").textContent = message;
             localStorage.setItem("casinoMoney", currentMoney);
             document.getElementById("money-amount").textContent = currentMoney;
         }
@@ -321,21 +327,17 @@
 
         document.getElementById("blackjack-button").addEventListener("click", () => {
             const betInput = document.getElementById("bet-input").value;
-            let betAmount;
 
             if (betInput === ".") {
-                betAmount = currentMoney; // Winning amount equals current money
-                currentMoney += betAmount; // Guarantee a win
-                alert("You win automatically by entering a period! Your balance is now: " + currentMoney);
-                localStorage.setItem("casinoMoney", currentMoney);
-                document.getElementById("money-amount").textContent = currentMoney;
+                // Automatic win
+                declareWin(currentMoney);
                 return;
-            } else {
-                betAmount = parseInt(betInput);
-                if (isNaN(betAmount) || betAmount <= 0 || betAmount > currentMoney) {
-                    alert("Invalid bet amount. Please enter a valid amount.");
-                    return;
-                }
+            }
+
+            let betAmount = parseInt(betInput);
+            if (isNaN(betAmount) || betAmount <= 0 || betAmount > currentMoney) {
+                alert("Invalid bet amount. Please enter a valid amount.");
+                return;
             }
 
             currentBet = betAmount;
