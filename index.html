@@ -68,6 +68,7 @@
             flex-direction: column;
             align-items: center;
             background-color: #8BC34A;
+            display: none; /* Initially hidden */
         }
 
         .card {
@@ -83,6 +84,11 @@
             font-size: 20px;
             color: white;
             border-radius: 5px;
+        }
+
+        .card-value {
+            font-size: 24px;
+            font-weight: bold;
         }
 
         .hand {
@@ -105,27 +111,32 @@
         </div>
         <div class="right-column">
             <div class="top-div">Welcome to the Casino!</div>
-            <div class="bottom-div" id="blackjack-game" style="display:none;">
+            <div class="bottom-div" id="blackjack-game">
                 <div>Player's Hand: <div class="hand" id="player-hand"></div></div>
                 <div class="score">Player Score: <span id="player-score">0</span></div>
                 <div>Dealer's Hand: <div class="hand" id="dealer-hand"></div></div>
                 <div class="score">Dealer Score: <span id="dealer-score">0</span></div>
-                <button id="hit-button" class="button" disabled>Hit</button>
-                <button id="stand-button" class="button" disabled>Stand</button>
+                <button id="hit-button">Hit</button>
+                <button id="stand-button">Stand</button>
                 <div id="result"></div>
             </div>
         </div>
     </div>
 
     <script>
-        let currentMoney = 1000; // Initialize money
-        let playerCards = [];
-        let dealerCards = [];
-        let gameActive = false;
-        let betAmount = 0;
+        let currentMoney = localStorage.getItem("casinoMoney") || 1000;
+        localStorage.setItem("casinoMoney", currentMoney);
+        document.getElementById("money-amount").textContent = currentMoney;
+        let currentBet = 0;
 
         function createCard(value, suit) {
-            return { value, suit };
+            const card = document.createElement("div");
+            card.classList.add("card");
+            card.innerHTML = `
+                <div class="card-value">${value}</div>
+                <div>${suit}</div>
+            `;
+            return card;
         }
 
         function getRandomCard() {
@@ -133,103 +144,190 @@
             const suits = ["♠", "♥", "♦", "♣"];
             const randomValue = values[Math.floor(Math.random() * values.length)];
             const randomSuit = suits[Math.floor(Math.random() * suits.length)];
-            return createCard(randomValue, randomSuit);
+            return { value: randomValue, suit: randomSuit };
         }
 
         function calculateScore(cards) {
             let score = 0;
-            let aces = 0;
-
+            let hasAce = false;
             for (const card of cards) {
-                if (card.value === "A") {
-                    aces++;
-                    score += 11; // Initially count Ace as 11
-                } else if (["K", "Q", "J"].includes(card.value)) {
+                if (card.value === "J" || card.value === "Q" || card.value === "K") {
                     score += 10;
+                } else if (card.value === "A") {
+                    hasAce = true;
+                    score += 11;
                 } else {
                     score += parseInt(card.value);
                 }
             }
-            while (score > 21 && aces) {
-                score -= 10; // Adjust for Aces
-                aces--;
+            if (hasAce && score > 21) {
+                score -= 10;
             }
             return score;
         }
 
-        function updateDisplay() {
-            document.getElementById("player-hand").innerHTML = playerCards.map(card => `${card.value}${card.suit}`).join(", ");
-            document.getElementById("dealer-hand").innerHTML = dealerCards.map(card => `${card.value}${card.suit}`).join(", ");
-            document.getElementById("player-score").textContent = calculateScore(playerCards);
-            document.getElementById("dealer-score").textContent = calculateScore(dealerCards);
+        function calculateMultiplier(betAmount) {
+            if (betAmount < 100) {
+                return 1.5;
+            } else if (betAmount < 500) {
+                return 2.5;
+            } else if (betAmount < 1000) {
+                return 3.5;
+            } else {
+                return 4.5;
+            }
         }
 
-        function determineWinner() {
-            const playerScore = calculateScore(playerCards);
-            const dealerScore = calculateScore(dealerCards);
+        function determineWinner(playerScore, dealerScore, betAmount) {
+            let message = "";
+            const multiplier = calculateMultiplier(betAmount);
 
-            if (playerScore > 21) return "You bust! Dealer wins.";
-            if (dealerScore > 21) return "Dealer busts! You win!";
-            if (playerScore === dealerScore) return "It's a tie!";
-            return playerScore > dealerScore ? "You win!" : "Dealer wins!";
+            if (playerScore > 21) {
+                message = "Player Busts! Dealer Wins!";
+                // No money lost
+            } else if (dealerScore > 21) {
+                message = "Player Wins!";
+                currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
+            } else if (playerScore > dealerScore) {
+                message = "Player Wins!";
+                currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
+            } else if (dealerScore > playerScore) {
+                message = "Dealer Wins!";
+                // No money lost
+            } else {
+                message = "It's a Tie!";
+                // No money lost
+            }
+            return message;
         }
 
-        function resetGame() {
-            playerCards = [];
-            dealerCards = [];
+        function startGame(betAmount) {
+            const blackjackGame = document.getElementById("blackjack-game");
+            blackjackGame.style.display = "flex";
+
+            document.getElementById("player-hand").innerHTML = "";
+            document.getElementById("dealer-hand").innerHTML = "";
+            document.getElementById("player-score").textContent = "0";
+            document.getElementById("dealer-score").textContent = "0";
             document.getElementById("result").textContent = "";
-            updateDisplay();
-            document.getElementById("hit-button").disabled = true;
-            document.getElementById("stand-button").disabled = true;
-            gameActive = false;
-        }
 
-        function startGame() {
-            resetGame();
+            let playerCards = [getRandomCard()];
+            let dealerCards = [getRandomCard()];
 
-            // Set a fixed bet amount for demonstration
-            betAmount = 100; // Replace this with a prompt if needed
-            if (betAmount > currentMoney) {
-                alert("Insufficient funds for the bet!");
+            let playerScore = calculateScore(playerCards);
+            let dealerScore = calculateScore(dealerCards);
+
+            playerCards.forEach(card => document.getElementById("player-hand").appendChild(createCard(card.value, card.suit)));
+            dealerCards.forEach(card => document.getElementById("dealer-hand").appendChild(createCard(card.value, card.suit)));
+
+            document.getElementById("player-score").textContent = playerScore;
+            document.getElementById("dealer-score").textContent = dealerScore;
+
+            if (playerScore === 21) {
+                document.getElementById("result").textContent = "Player Blackjack! You Win!";
+                currentMoney += Math.ceil(betAmount * calculateMultiplier(betAmount)); // Round up winnings
+                localStorage.setItem("casinoMoney", currentMoney);
+                document.getElementById("money-amount").textContent = currentMoney;
+                endGame();
                 return;
             }
 
-            currentMoney -= betAmount;
-            document.getElementById("money-amount").textContent = currentMoney;
-
-            // Start with one card for both player and dealer
-            playerCards.push(getRandomCard());
-            dealerCards.push(getRandomCard());
-
-            updateDisplay();
             document.getElementById("hit-button").disabled = false;
             document.getElementById("stand-button").disabled = false;
-            gameActive = true;
-            document.getElementById("blackjack-game").style.display = "flex"; // Show the game area
         }
 
-        document.getElementById("blackjack-button").addEventListener("click", startGame);
+        function hit() {
+            const playerHand = document.getElementById("player-hand");
+            const newCard = getRandomCard();
+            playerHand.appendChild(createCard(newCard.value, newCard.suit));
+            const playerCards = Array.from(playerHand.children).map(card => ({
+                value: card.querySelector(".card-value").textContent,
+                suit: card.children[1].textContent
+            }));
+            const playerScore = calculateScore(playerCards);
+            document.getElementById("player-score").textContent = playerScore;
 
-        document.getElementById("hit-button").addEventListener("click", () => {
-            if (gameActive) {
-                playerCards.push(getRandomCard());
-                updateDisplay();
-                if (calculateScore(playerCards) > 21) {
-                    document.getElementById("result").textContent = "You bust! Dealer wins.";
-                    gameActive = false;
+            if (playerScore > 21) {
+                document.getElementById("result").textContent = "Player Busts! Dealer Wins!";
+                // No money lost
+                localStorage.setItem("casinoMoney", currentMoney);
+                document.getElementById("money-amount").textContent = currentMoney;
+                endGame();
+            }
+        }
+
+        function dealerTurn() {
+            const dealerHand = document.getElementById("dealer-hand");
+            let dealerCards = Array.from(dealerHand.children).map(card => ({
+                value: card.querySelector(".card-value").textContent,
+                suit: card.children[1].textContent
+            }));
+            let dealerScore = calculateScore(dealerCards);
+
+            while (dealerScore < 17) {
+                const newCard = getRandomCard();
+                dealerHand.appendChild(createCard(newCard.value, newCard.suit));
+                dealerCards.push(newCard);
+                dealerScore = calculateScore(dealerCards);
+            }
+
+            document.getElementById("dealer-score").textContent = dealerScore;
+            const playerScore = calculateScore(Array.from(document.getElementById("player-hand").children).map(card => ({
+                value: card.querySelector(".card-value").textContent,
+                suit: card.children[1].textContent
+            })));
+
+            document.getElementById("result").textContent = determineWinner(playerScore, dealerScore, currentBet);
+            localStorage.setItem("casinoMoney", currentMoney);
+            document.getElementById("money-amount").textContent = currentMoney;
+        }
+
+        function endGame() {
+            document.getElementById("hit-button").disabled = true;
+            document.getElementById("stand-button").disabled = true;
+        }
+
+        document.getElementById("blackjack-button").addEventListener("click", () => {
+            let betAmount = prompt("Enter your bet amount:");
+            if (betAmount.startsWith("setmoney=")) {
+                const amount = betAmount.split("=")[1];
+                const parsedAmount = parseInt(amount);
+                if (!isNaN(parsedAmount) && parsedAmount >= 0) {
+                    currentMoney = parsedAmount;
+                    localStorage.setItem("casinoMoney", currentMoney);
+                    document.getElementById("money-amount").textContent = currentMoney;
+                    return;
+                } else {
+                    alert("Invalid amount. Please enter a valid number after 'setmoney='.");
+                    return;
                 }
             }
+
+            betAmount = parseInt(betAmount);
+            if (isNaN(betAmount) || betAmount <= 0 || betAmount > currentMoney) {
+                alert("Invalid bet amount. Please enter a valid amount.");
+                return;
+            }
+
+            currentBet = betAmount;
+            currentMoney -= betAmount; // Deduct bet from current money
+            localStorage.setItem("casinoMoney", currentMoney);
+            document.getElementById("money-amount").textContent = currentMoney;
+            startGame(betAmount);
         });
 
+        document.getElementById("hit-button").addEventListener("click", hit);
         document.getElementById("stand-button").addEventListener("click", () => {
-            if (gameActive) {
-                while (calculateScore(dealerCards) < 17) {
-                    dealerCards.push(getRandomCard());
-                }
-                updateDisplay();
-                document.getElementById("result").textContent = determineWinner();
-                gameActive = false; // End game
-            }
+            endGame();
+            dealerTurn();
+        });
+
+        document.getElementById("slots-button").addEventListener("click", () => {
+            alert("Slots game clicked!");
+        });
+
+        document.getElementById("roulette-button").addEventListener("click", () => {
+            alert("Roulette game clicked!");
         });
     </script>
 </body>
