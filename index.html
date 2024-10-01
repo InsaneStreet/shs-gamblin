@@ -75,6 +75,7 @@
                 transparent 50%, #4CAF50 50%);
             background-size: 32px 32px; /* Adjust size as needed */
             background-position: 0 0;
+            display: none; /* Initially hidden */
         }
 
         .card {
@@ -110,9 +111,9 @@
 <body>
     <div class="container">
         <div class="left-column">
-            <button class="button">Slots</button>
+            <button class="button" id="slots-button">Slots</button>
             <button class="button" id="blackjack-button">Blackjack</button>
-            <button class="button">Roulette</button>
+            <button class="button" id="roulette-button">Roulette</button>
             <div class="money-counter">Money: <span id="money-amount">1000</span></div>
             <button class="button" id="back-home-button">Back Home</button>
         </div>
@@ -222,7 +223,7 @@
         }
 
         // Function to start a new game
-        function startGame() {
+        function startGame(betAmount) {
             const blackjackGame = document.getElementById("blackjack-game");
             blackjackGame.innerHTML = ""; // Clear previous game
 
@@ -250,6 +251,8 @@
             if (playerScore === 21) {
                 document.getElementById("result").textContent = "Player Blackjack! You Win!";
                 endGame();
+                currentMoney += betAmount * 1.5; // 3:2 payout
+                document.getElementById("money-amount").textContent = currentMoney;
                 return;
             }
 
@@ -287,7 +290,7 @@
             dealerCards.forEach(card => dealerHand.appendChild(createCard(card.value, card.suit)));
             dealerScoreElement.textContent = dealerScore;
 
-            while (dealerScore < 17) {
+            while (dealerScore <= 17) {
                 const newCard = getRandomCard();
                 dealerCards.push(newCard);
                 dealerScore = calculateScore(dealerCards);
@@ -304,6 +307,13 @@
         function endGame() {
             document.getElementById("hit-button").disabled = true;
             document.getElementById("stand-button").disabled = true;
+            document.getElementById("blackjack-button").disabled = false;
+            document.getElementById("slots-button").disabled = false;
+            document.getElementById("roulette-button").disabled = false;
+
+            // Clear the game area when the game ends
+            const blackjackGame = document.getElementById("blackjack-game");
+            blackjackGame.style.display = "none"; // Hide the game area
         }
 
         // Function to get player's cards (for score calculation)
@@ -340,12 +350,15 @@
             }
             currentMoney -= betAmount;
             document.getElementById("money-amount").textContent = currentMoney;
+            document.getElementById("blackjack-button").disabled = true;
+            document.getElementById("slots-button").disabled = true;
+            document.getElementById("roulette-button").disabled = true;
             startGame(betAmount);
         });
-        
+
         function startGame(betAmount) {
             const blackjackGame = document.getElementById("blackjack-game");
-            blackjackGame.innerHTML = ""; // Clear previous game
+            blackjackGame.style.display = "flex"; // Show the game area
 
             // Initialize game variables
             let playerCards = [getRandomCard(), getRandomCard()];
@@ -391,6 +404,19 @@
         const backHomeButton = document.getElementById("back-home-button");
         backHomeButton.addEventListener("click", () => {
             window.location.href = "https://www.replit.com/"; // Replace with your desired link
+        });
+
+        // Event listeners for other game buttons
+        const slotsButton = document.getElementById("slots-button");
+        slotsButton.addEventListener("click", () => {
+            // Implement slots game logic here
+            alert("Slots game clicked!");
+        });
+
+        const rouletteButton = document.getElementById("roulette-button");
+        rouletteButton.addEventListener("click", () => {
+            // Implement roulette game logic here
+            alert("Roulette game clicked!");
         });
     </script>
 </body>
