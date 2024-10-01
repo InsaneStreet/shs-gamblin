@@ -173,10 +173,10 @@
                 // No money lost
             } else if (dealerScore > 21) {
                 message = "Player Wins!";
-                currentMoney += betAmount * 2.5; // Player wins at 2.5:1 ratio
+                currentMoney += Math.ceil(betAmount * 2.5); // Round up winnings
             } else if (playerScore > dealerScore) {
                 message = "Player Wins!";
-                currentMoney += betAmount * 2.5; // Player wins at 2.5:1 ratio
+                currentMoney += Math.ceil(betAmount * 2.5); // Round up winnings
             } else if (dealerScore > playerScore) {
                 message = "Dealer Wins!";
                 // No money lost
@@ -211,7 +211,7 @@
 
             if (playerScore === 21) {
                 document.getElementById("result").textContent = "Player Blackjack! You Win!";
-                currentMoney += betAmount * 2.5;
+                currentMoney += Math.ceil(betAmount * 2.5); // Round up winnings
                 localStorage.setItem("casinoMoney", currentMoney);
                 document.getElementById("money-amount").textContent = currentMoney;
                 endGame();
@@ -258,11 +258,11 @@
             }
 
             document.getElementById("dealer-score").textContent = dealerScore;
-
             const playerScore = calculateScore(Array.from(document.getElementById("player-hand").children).map(card => ({
                 value: card.querySelector(".card-value").textContent,
                 suit: card.children[1].textContent
             })));
+
             document.getElementById("result").textContent = determineWinner(playerScore, dealerScore, currentBet);
             localStorage.setItem("casinoMoney", currentMoney);
             document.getElementById("money-amount").textContent = currentMoney;
