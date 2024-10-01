@@ -199,8 +199,8 @@
             document.getElementById("result").textContent = "";
 
             // Initialize game variables
-            let playerCards = [getRandomCard(), getRandomCard()];
-            let dealerCards = [getRandomCard(), getRandomCard()];
+            let playerCards = [getRandomCard()]; // Player starts with one card
+            let dealerCards = [getRandomCard()]; // Dealer starts with one card
 
             // Calculate scores
             let playerScore = calculateScore(playerCards);
