@@ -332,7 +332,55 @@
 
         // Event listeners for Blackjack button, Hit button, and Stand button
         const blackjackButton = document.getElementById("blackjack-button");
-        blackjackButton.addEventListener("click", startGame);
+        blackjackButton.addEventListener("click", () => {
+            let betAmount = parseInt(prompt("Enter your bet amount:"));
+            if (isNaN(betAmount) || betAmount <= 0 || betAmount > currentMoney) {
+                alert("Invalid bet amount. Please enter a valid amount.");
+                return;
+            }
+            currentMoney -= betAmount;
+            document.getElementById("money-amount").textContent = currentMoney;
+            startGame(betAmount);
+        });
+        
+        function startGame(betAmount) {
+            const blackjackGame = document.getElementById("blackjack-game");
+            blackjackGame.innerHTML = ""; // Clear previous game
+
+            // Initialize game variables
+            let playerCards = [getRandomCard(), getRandomCard()];
+            let dealerCards = [getRandomCard(), getRandomCard()];
+            let playerScore = calculateScore(playerCards);
+            let dealerScore = calculateScore(dealerCards);
+
+            // Display initial cards
+            const playerHand = document.getElementById("player-hand");
+            playerHand.innerHTML = "";
+            playerCards.forEach(card => playerHand.appendChild(createCard(card.value, card.suit)));
+
+            const dealerHand = document.getElementById("dealer-hand");
+            dealerHand.innerHTML = "";
+            dealerCards.forEach(card => dealerHand.appendChild(createCard(card.value, card.suit)));
+            dealerHand.appendChild(createCard("?", "?")); // Hide dealer's second card
+
+            // Update score display
+            document.getElementById("player-score").textContent = playerScore;
+            document.getElementById("dealer-score").textContent = "?";
+
+            // Check for initial Blackjack
+            if (playerScore === 21) {
+                document.getElementById("result").textContent = "Player Blackjack! You Win!";
+                endGame();
+                currentMoney += betAmount * 1.5; // 3:2 payout
+                document.getElementById("money-amount").textContent = currentMoney;
+                return;
+            }
+
+            // Player's turn
+            document.getElementById("hit-button").disabled = false;
+            document.getElementById("stand-button").disabled = false;
+        }
+
         document.getElementById("hit-button").addEventListener("click", hit);
         document.getElementById("stand-button").addEventListener("click", () => {
             endGame();
