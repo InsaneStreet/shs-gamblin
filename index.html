@@ -125,7 +125,6 @@
         <div class="left-column">
             <button class="button" id="slots-button">Slots</button>
             <button class="button" id="blackjack-button">Blackjack</button>
-            <button class="button" id="roulette-button">Roulette</button>
             <div class="money-counter">Money: <span id="money-amount">1000</span></div>
         </div>
         <div class="right-column">
@@ -152,7 +151,6 @@
         let currentMoney = localStorage.getItem("casinoMoney") || 1000;
         localStorage.setItem("casinoMoney", currentMoney);
         document.getElementById("money-amount").textContent = currentMoney;
-        let currentBet = 0;
 
         // Slot Game Functions
         function spinSlots() {
@@ -207,13 +205,12 @@
                 return;
             }
 
-            currentBet = betAmount;
-            currentMoney -= currentBet;
+            currentMoney -= betAmount;
             localStorage.setItem("casinoMoney", currentMoney);
             document.getElementById("money-amount").textContent = currentMoney;
 
             const results = spinSlots();
-            const winnings = calculateSlotWinnings(results, currentBet);
+            const winnings = calculateSlotWinnings(results, betAmount);
             const resultText = winnings > 0 
                 ? `You win! Total winnings: ${winnings}.` 
                 : "You lose! Better luck next time.";
@@ -225,7 +222,7 @@
             document.getElementById("slot-result").textContent = resultText;
         }
 
-        // Blackjack Functions
+        // Blackjack Functions (simplified for now)
         function createCard(value, suit) {
             const card = document.createElement("div");
             card.classList.add("card");
@@ -263,20 +260,6 @@
             return score;
         }
 
-        function calculateMultiplier(betAmount) {
-            if (betAmount < 100) {
-                return 1.5;
-            } else if (betAmount < 200) {
-                return 2.5;
-            } else if (betAmount < 500) {
-                return 3.5;
-            } else if (betAmount < 1000) {
-                return 4.5;
-            } else {
-                return 5.5;
-            }
-        }
-
         function determineWinner(playerScore, dealerScore, betAmount) {
             if (playerScore > 21) {
                 return "You bust! You lose.";
@@ -286,9 +269,8 @@
             } else if (playerScore === dealerScore) {
                 return "It's a tie!";
             } else if (playerScore > dealerScore) {
-                const multiplier = calculateMultiplier(betAmount);
-                currentMoney += betAmount * multiplier; // player wins
-                return `You win! Your winnings are ${betAmount * multiplier}.`;
+                currentMoney += betAmount * 2; // player wins
+                return `You win! Your winnings are ${betAmount * 2}.`;
             } else {
                 return "You lose!";
             }
@@ -326,14 +308,14 @@
         // Event Listeners
         document.getElementById("slots-button").addEventListener("click", () => {
             document.getElementById("blackjack-game").style.display = "none";
-            document.getElementById("slots-game").style.display = "flex";
+            document.getElementById("slots-game").style.display = "flex"; // Show slots game
         });
 
         document.getElementById("spin-button").addEventListener("click", handleSpin);
 
         document.getElementById("blackjack-button").addEventListener("click", () => {
             document.getElementById("slots-game").style.display = "none";
-            document.getElementById("blackjack-game").style.display = "flex";
+            document.getElementById("blackjack-game").style.display = "flex"; // Show blackjack game
             const betAmount = prompt("Enter your bet amount:");
             startGame(betAmount);
         });
