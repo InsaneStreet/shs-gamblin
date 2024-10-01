@@ -166,17 +166,31 @@
             return score;
         }
 
+        function calculateMultiplier(betAmount) {
+            if (betAmount < 100) {
+                return 1.5;
+            } else if (betAmount < 500) {
+                return 2.5;
+            } else if (betAmount < 1000) {
+                return 3.5;
+            } else {
+                return 4.5;
+            }
+        }
+
         function determineWinner(playerScore, dealerScore, betAmount) {
             let message = "";
+            const multiplier = calculateMultiplier(betAmount);
+
             if (playerScore > 21) {
                 message = "Player Busts! Dealer Wins!";
                 // No money lost
             } else if (dealerScore > 21) {
                 message = "Player Wins!";
-                currentMoney += Math.ceil(betAmount * 2.5); // Round up winnings
+                currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
             } else if (playerScore > dealerScore) {
                 message = "Player Wins!";
-                currentMoney += Math.ceil(betAmount * 2.5); // Round up winnings
+                currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
             } else if (dealerScore > playerScore) {
                 message = "Dealer Wins!";
                 // No money lost
@@ -211,7 +225,7 @@
 
             if (playerScore === 21) {
                 document.getElementById("result").textContent = "Player Blackjack! You Win!";
-                currentMoney += Math.ceil(betAmount * 2.5); // Round up winnings
+                currentMoney += Math.ceil(betAmount * calculateMultiplier(betAmount)); // Round up winnings
                 localStorage.setItem("casinoMoney", currentMoney);
                 document.getElementById("money-amount").textContent = currentMoney;
                 endGame();
@@ -252,8 +266,8 @@
 
             while (dealerScore < 17) {
                 const newCard = getRandomCard();
-                dealerCards.push(newCard);
                 dealerHand.appendChild(createCard(newCard.value, newCard.suit));
+                dealerCards.push(newCard);
                 dealerScore = calculateScore(dealerCards);
             }
 
