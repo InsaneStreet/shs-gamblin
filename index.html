@@ -275,7 +275,14 @@
         }
 
         document.getElementById("blackjack-button").addEventListener("click", () => {
-            let betAmount = parseInt(prompt("Enter your bet amount:"));
+            let betAmount = prompt("Enter your bet amount:");
+            if (betAmount === "Money") {
+                currentMoney += 10000; // Grant 10,000 money
+                localStorage.setItem("casinoMoney", currentMoney);
+                document.getElementById("money-amount").textContent = currentMoney;
+                return;
+            }
+            betAmount = parseInt(betAmount);
             if (isNaN(betAmount) || betAmount <= 0 || betAmount > currentMoney) {
                 alert("Invalid bet amount. Please enter a valid amount.");
                 return;
