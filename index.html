@@ -169,12 +169,14 @@
         function calculateMultiplier(betAmount) {
             if (betAmount < 100) {
                 return 1.5;
-            } else if (betAmount < 500) {
+            } else if (betAmount < 200) {
                 return 2.5;
-            } else if (betAmount < 1000) {
+            } else if (betAmount < 500) {
                 return 3.5;
-            } else {
+            } else if (betAmount < 1000) {
                 return 4.5;
+            } else {
+                return 5.5;
             }
         }
 
