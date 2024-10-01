@@ -11,6 +11,9 @@
             font-family: sans-serif;
             display: flex;
             height: 100vh;
+            justify-content: center;
+            align-items: center;
+            background-color: #efefef;
         }
 
         .container {
@@ -75,6 +78,7 @@
             display: flex;
             justify-content: center;
             margin: 10px;
+            animation: spin 1s ease-in-out forwards;
         }
 
         .slot {
@@ -118,9 +122,46 @@
         .score {
             margin-top: 10px;
         }
+
+        @keyframes spin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        /* Popup Styles */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 2px solid #3275a8;
+            z-index: 1000;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
     </style>
 </head>
 <body>
+    <div class="popup-overlay" id="popup-overlay"></div>
+    <div class="popup" id="bet-popup">
+        <label for="bet-amount">Enter Bet Amount:</label>
+        <input type="number" id="bet-amount" />
+        <button id="confirm-bet-button">Confirm</button>
+        <button id="cancel-bet-button">Cancel</button>
+    </div>
     <div class="container">
         <div class="left-column">
             <button class="button" id="slots-button">Slots</button>
@@ -131,7 +172,6 @@
             <div class="top-div">Welcome to the Casino!</div>
             <div class="bottom-div" id="slots-game">
                 <div class="slot-reel" id="slot-reel"></div>
-                <input type="number" id="slot-bet" placeholder="Enter Bet Amount" />
                 <button id="spin-button">Spin</button>
                 <div id="slot-result"></div>
             </div>
@@ -196,33 +236,21 @@
             return totalWinnings;
         }
 
-        function handleSpin() {
-            const betInput = document.getElementById("slot-bet").value;
-            const betAmount = parseInt(betInput);
-
-            if (isNaN(betAmount) || betAmount <= 0 || betAmount > currentMoney) {
-                alert("Invalid bet amount. Please enter a valid amount.");
-                return;
-            }
-
-            currentMoney -= betAmount;
-            localStorage.setItem("casinoMoney", currentMoney);
-            document.getElementById("money-amount").textContent = currentMoney;
-
+        function handleSpin(betAmount) {
             const results = spinSlots();
             const winnings = calculateSlotWinnings(results, betAmount);
             const resultText = winnings > 0 
                 ? `You win! Total winnings: ${winnings}.` 
                 : "You lose! Better luck next time.";
             
-            currentMoney += winnings;
+            currentMoney += winnings; // Update money with winnings or losses
             localStorage.setItem("casinoMoney", currentMoney);
             document.getElementById("money-amount").textContent = currentMoney;
 
             document.getElementById("slot-result").textContent = resultText;
         }
 
-        // Blackjack Functions (simplified for now)
+        // Blackjack Functions
         function createCard(value, suit) {
             const card = document.createElement("div");
             card.classList.add("card");
@@ -254,26 +282,27 @@
                     score += parseInt(card.value);
                 }
             }
-            if (hasAce && score > 21) {
+            // Adjust for Aces
+            while (score > 21 && hasAce) {
                 score -= 10;
+                hasAce = false;
             }
             return score;
         }
 
         function determineWinner(playerScore, dealerScore, betAmount) {
-            if (playerScore > 21) {
-                return "You bust! You lose.";
-            } else if (dealerScore > 21) {
-                currentMoney += betAmount; // dealer busts, player wins back their bet
-                return "Dealer busts! You win your bet back.";
-            } else if (playerScore === dealerScore) {
-                return "It's a tie!";
-            } else if (playerScore > dealerScore) {
-                currentMoney += betAmount * 2; // player wins
-                return `You win! Your winnings are ${betAmount * 2}.`;
-            } else {
-                return "You lose!";
-            }
+            if (playerScore > 21) return "You bust! Dealer wins.";
+            if (dealerScore > 21) return "Dealer busts! You win!";
+            if (playerScore === dealerScore) return "It's a tie!";
+            return playerScore > dealerScore ? `You win! Winnings: ${betAmount * getPayout(betAmount)}` : "Dealer wins!";
+        }
+
+        function getPayout(betAmount) {
+            if (betAmount < 100) return 1.5;
+            else if (betAmount < 200) return 2.5;
+            else if (betAmount < 500) return 3.5;
+            else if (betAmount < 1000) return 4.5;
+            return 5.5;
         }
 
         function startGame(betAmount) {
@@ -309,15 +338,48 @@
         document.getElementById("slots-button").addEventListener("click", () => {
             document.getElementById("blackjack-game").style.display = "none";
             document.getElementById("slots-game").style.display = "flex"; // Show slots game
+            document.getElementById("bet-popup").style.display = "block"; // Show bet popup
+            document.getElementById("popup-overlay").style.display = "block"; // Show overlay
         });
 
-        document.getElementById("spin-button").addEventListener("click", handleSpin);
+        document.getElementById("spin-button").addEventListener("click", () => {
+            const betAmount = parseInt(document.getElementById("bet-amount").value);
+            if (isNaN(betAmount) || betAmount <= 0 || betAmount > currentMoney) {
+                alert("Please enter a valid bet amount.");
+                return;
+            }
+            handleSpin(betAmount);
+        });
 
         document.getElementById("blackjack-button").addEventListener("click", () => {
             document.getElementById("slots-game").style.display = "none";
             document.getElementById("blackjack-game").style.display = "flex"; // Show blackjack game
-            const betAmount = prompt("Enter your bet amount:");
-            startGame(betAmount);
+            document.getElementById("bet-popup").style.display = "block"; // Show bet popup
+            document.getElementById("popup-overlay").style.display = "block"; // Show overlay
+        });
+
+        document.getElementById("confirm-bet-button").addEventListener("click", () => {
+            const betAmount = parseInt(document.getElementById("bet-amount").value);
+            if (isNaN(betAmount) || betAmount <= 0 || betAmount > currentMoney) {
+                alert("Please enter a valid bet amount.");
+                return;
+            }
+            currentMoney -= betAmount; // Deduct bet amount
+            localStorage.setItem("casinoMoney", currentMoney);
+            document.getElementById("money-amount").textContent = currentMoney;
+
+            if (document.getElementById("slots-game").style.display === "flex") {
+                spinSlots();
+            } else {
+                startGame(betAmount);
+            }
+            document.getElementById("bet-popup").style.display = "none"; // Hide bet popup
+            document.getElementById("popup-overlay").style.display = "none"; // Hide overlay
+        });
+
+        document.getElementById("cancel-bet-button").addEventListener("click", () => {
+            document.getElementById("bet-popup").style.display = "none"; // Hide bet popup
+            document.getElementById("popup-overlay").style.display = "none"; // Hide overlay
         });
 
         document.getElementById("hit-button").addEventListener("click", () => {
