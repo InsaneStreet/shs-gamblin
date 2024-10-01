@@ -264,7 +264,7 @@
             }));
             let dealerScore = calculateScore(dealerCards);
 
-            while (dealerScore < 17) {
+            while (dealerScore <= 17) {
                 const newCard = getRandomCard();
                 dealerHand.appendChild(createCard(newCard.value, newCard.suit));
                 dealerCards.push(newCard);
