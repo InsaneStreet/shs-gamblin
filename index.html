@@ -259,23 +259,26 @@
             // Player's turn
             document.getElementById("hit-button").disabled = false;
             document.getElementById("stand-button").disabled = false;
+            playerTurn = true; // Added this line
         }
 
         // Function to handle player's hit
         function hit() {
-            const playerHand = document.getElementById("player-hand");
-            const playerScoreElement = document.getElementById("player-score");
-            const playerCards = getPlayerCards(); // Get the player's cards
-            const newCard = getRandomCard(); // Deal a new card
-            playerCards.push(newCard); // Add the new card to the player's hand
-            playerHand.innerHTML = ""; // Clear the hand display
-            playerCards.forEach(card => playerHand.appendChild(createCard(card.value, card.suit))); // Update hand display
-            const playerScore = calculateScore(playerCards);
-            playerScoreElement.textContent = playerScore; // Update score display
+            if (playerTurn) { // Added this conditional
+                const playerHand = document.getElementById("player-hand");
+                const playerScoreElement = document.getElementById("player-score");
+                const playerCards = getPlayerCards(); // Get the player's cards
+                const newCard = getRandomCard(); // Deal a new card
+                playerCards.push(newCard); // Add the new card to the player's hand
+                playerHand.innerHTML = ""; // Clear the hand display
+                playerCards.forEach(card => playerHand.appendChild(createCard(card.value, card.suit))); // Update hand display
+                const playerScore = calculateScore(playerCards);
+                playerScoreElement.textContent = playerScore; // Update score display
 
-            if (playerScore > 21) {
-                document.getElementById("result").textContent = "Player Busts! Dealer Wins!";
-                endGame();
+                if (playerScore > 21) {
+                    document.getElementById("result").textContent = "Player Busts! Dealer Wins!";
+                    endGame();
+                }
             }
         }
 
@@ -286,7 +289,8 @@
             const dealerCards = getDealerCards();
             let dealerScore = calculateScore(dealerCards);
 
-            dealerHand.innerHTML = "";
+            //dealerHand.innerHTML = ""; // Remove this line
+
             dealerCards.forEach(card => dealerHand.appendChild(createCard(card.value, card.suit)));
             dealerScoreElement.textContent = dealerScore;
 
@@ -294,7 +298,7 @@
                 const newCard = getRandomCard();
                 dealerCards.push(newCard);
                 dealerScore = calculateScore(dealerCards);
-                dealerHand.innerHTML = "";
+                //dealerHand.innerHTML = ""; // Remove this line
                 dealerCards.forEach(card => dealerHand.appendChild(createCard(card.value, card.suit)));
                 dealerScoreElement.textContent = dealerScore;
             }
@@ -374,11 +378,11 @@
             const dealerHand = document.getElementById("dealer-hand");
             dealerHand.innerHTML = "";
             dealerCards.forEach(card => dealerHand.appendChild(createCard(card.value, card.suit)));
-            dealerHand.appendChild(createCard("?", "?")); // Hide dealer's second card
+            //dealerHand.appendChild(createCard("?", "?")); // Hide dealer's second card
 
             // Update score display
             document.getElementById("player-score").textContent = playerScore;
-            document.getElementById("dealer-score").textContent = "?";
+            document.getElementById("dealer-score").textContent = dealerScore;
 
             // Check for initial Blackjack
             if (playerScore === 21) {
@@ -392,6 +396,7 @@
             // Player's turn
             document.getElementById("hit-button").disabled = false;
             document.getElementById("stand-button").disabled = false;
+            playerTurn = true; // Added this line
         }
 
         document.getElementById("hit-button").addEventListener("click", hit);
