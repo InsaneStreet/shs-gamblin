@@ -171,7 +171,7 @@
             let message = "";
             if (playerScore > 21) {
                 message = "Player Busts! Dealer Wins!";
-                currentMoney -= betAmount; // Player loses bet
+                // No money lost
             } else if (dealerScore > 21) {
                 message = "Player Wins!";
                 currentMoney += betAmount * 2.5; // Player wins at 2.5:1 ratio
@@ -180,9 +180,10 @@
                 currentMoney += betAmount * 2.5; // Player wins at 2.5:1 ratio
             } else if (dealerScore > playerScore) {
                 message = "Dealer Wins!";
-                currentMoney -= betAmount; // Player loses bet
+                // No money lost
             } else {
                 message = "It's a Tie!";
+                // No money lost
             }
             return message;
         }
@@ -235,7 +236,7 @@
 
             if (playerScore > 21) {
                 document.getElementById("result").textContent = "Player Busts! Dealer Wins!";
-                currentMoney -= currentBet; // Player loses bet
+                // No money lost
                 localStorage.setItem("casinoMoney", currentMoney);
                 document.getElementById("money-amount").textContent = currentMoney;
                 endGame();
@@ -280,7 +281,7 @@
                 return;
             }
             currentBet = betAmount;
-            currentMoney -= betAmount;
+            currentMoney -= betAmount; // Deduct bet from current money
             localStorage.setItem("casinoMoney", currentMoney);
             document.getElementById("money-amount").textContent = currentMoney;
             startGame(betAmount);
