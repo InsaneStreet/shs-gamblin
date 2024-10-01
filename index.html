@@ -225,7 +225,7 @@
         // Function to start a new game
         function startGame(betAmount) {
             const blackjackGame = document.getElementById("blackjack-game");
-            blackjackGame.innerHTML = ""; // Clear previous game
+            blackjackGame.style.display = "flex"; // Show the game area
 
             // Initialize game variables
             let playerCards = [getRandomCard(), getRandomCard()];
@@ -241,11 +241,11 @@
             const dealerHand = document.getElementById("dealer-hand");
             dealerHand.innerHTML = "";
             dealerCards.forEach(card => dealerHand.appendChild(createCard(card.value, card.suit)));
-            dealerHand.appendChild(createCard("?", "?")); // Hide dealer's second card
+            //dealerHand.appendChild(createCard("?", "?")); // Hide dealer's second card
 
             // Update score display
             document.getElementById("player-score").textContent = playerScore;
-            document.getElementById("dealer-score").textContent = "?";
+            document.getElementById("dealer-score").textContent = dealerScore;
 
             // Check for initial Blackjack
             if (playerScore === 21) {
@@ -317,7 +317,7 @@
 
             // Clear the game area when the game ends
             const blackjackGame = document.getElementById("blackjack-game");
-            blackjackGame.style.display = "none"; // Hide the game area
+            //blackjackGame.style.display = "none"; // Hide the game area
         }
 
         // Function to get player's cards (for score calculation)
