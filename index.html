@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -276,17 +276,26 @@
 
         document.getElementById("blackjack-button").addEventListener("click", () => {
             let betAmount = prompt("Enter your bet amount:");
-            if (betAmount === "Money") {
-                currentMoney += 10000; // Grant 10,000 money
-                localStorage.setItem("casinoMoney", currentMoney);
-                document.getElementById("money-amount").textContent = currentMoney;
-                return;
+            if (betAmount.startsWith("setmoney=")) {
+                const amount = betAmount.split("=")[1];
+                const parsedAmount = parseInt(amount);
+                if (!isNaN(parsedAmount) && parsedAmount >= 0) {
+                    currentMoney = parsedAmount;
+                    localStorage.setItem("casinoMoney", currentMoney);
+                    document.getElementById("money-amount").textContent = currentMoney;
+                    return;
+                } else {
+                    alert("Invalid amount. Please enter a valid number after 'setmoney='.");
+                    return;
+                }
             }
+
             betAmount = parseInt(betAmount);
             if (isNaN(betAmount) || betAmount <= 0 || betAmount > currentMoney) {
                 alert("Invalid bet amount. Please enter a valid amount.");
                 return;
             }
+
             currentBet = betAmount;
             currentMoney -= betAmount; // Deduct bet from current money
             localStorage.setItem("casinoMoney", currentMoney);
