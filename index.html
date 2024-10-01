@@ -31,39 +31,9 @@
             width: 100%;
             margin-top: 10px;
         }
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            border: 2px solid #3275a8;
-            z-index: 1000;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-        .popup-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
     </style>
 </head>
 <body>
-
-<div class="popup-overlay" id="popup-overlay"></div>
-<div class="popup" id="bet-popup">
-    <label for="bet-amount">Enter Bet Amount:</label>
-    <input type="number" id="bet-amount" />
-    <button id="confirm-bet-button">Confirm</button>
-    <button id="cancel-bet-button">Cancel</button>
-</div>
 
 <div class="container" id="blackjack-game">
     <h1>Blackjack</h1>
@@ -151,33 +121,25 @@
 
     function startGame() {
         resetGame();
-        
-        betAmount = parseInt(document.getElementById("bet-amount").value);
+
+        // Prompt for bet amount
+        betAmount = parseInt(prompt("Enter your bet amount:"));
         if (isNaN(betAmount) || betAmount <= 0 || betAmount > currentMoney) {
             alert("Please enter a valid bet amount.");
             return;
         }
 
         currentMoney -= betAmount;
-        playerCards = [getRandomCard(), getRandomCard()];
-        dealerCards = [getRandomCard(), getRandomCard()];
+
+        // Start with one card for both player and dealer
+        playerCards = [getRandomCard()];
+        dealerCards = [getRandomCard()];
 
         updateDisplay();
         document.getElementById("hit-button").disabled = false;
         document.getElementById("stand-button").disabled = false;
         gameActive = true;
     }
-
-    document.getElementById("confirm-bet-button").addEventListener("click", () => {
-        startGame();
-        document.getElementById("bet-popup").style.display = "none";
-        document.getElementById("popup-overlay").style.display = "none";
-    });
-
-    document.getElementById("cancel-bet-button").addEventListener("click", () => {
-        document.getElementById("bet-popup").style.display = "none";
-        document.getElementById("popup-overlay").style.display = "none";
-    });
 
     document.getElementById("hit-button").addEventListener("click", () => {
         if (gameActive) {
@@ -201,10 +163,7 @@
         }
     });
 
-    document.getElementById("start-game").addEventListener("click", () => {
-        document.getElementById("bet-popup").style.display = "block";
-        document.getElementById("popup-overlay").style.display = "block";
-    });
+    document.getElementById("start-game").addEventListener("click", startGame);
 </script>
 
 </body>
