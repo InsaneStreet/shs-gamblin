@@ -227,6 +227,15 @@
             const blackjackGame = document.getElementById("blackjack-game");
             blackjackGame.style.display = "flex"; // Show the game area
 
+            // Clear previous hands and scores
+            const playerHand = document.getElementById("player-hand");
+            const dealerHand = document.getElementById("dealer-hand");
+            playerHand.innerHTML = ""; // Clear player's hand
+            dealerHand.innerHTML = ""; // Clear dealer's hand
+            document.getElementById("player-score").textContent = ""; // Reset player score
+            document.getElementById("dealer-score").textContent = ""; // Reset dealer score
+            document.getElementById("result").textContent = ""; // Clear previous result
+
             // Initialize game variables
             let playerCards = [getRandomCard(), getRandomCard()];
             let dealerCards = [getRandomCard(), getRandomCard()];
@@ -234,14 +243,8 @@
             let dealerScore = calculateScore(dealerCards);
 
             // Display initial cards
-            const playerHand = document.getElementById("player-hand");
-            playerHand.innerHTML = "";
             playerCards.forEach(card => playerHand.appendChild(createCard(card.value, card.suit)));
-
-            const dealerHand = document.getElementById("dealer-hand");
-            dealerHand.innerHTML = "";
             dealerCards.forEach(card => dealerHand.appendChild(createCard(card.value, card.suit)));
-            //dealerHand.appendChild(createCard("?", "?")); // Hide dealer's second card
 
             // Update score display
             document.getElementById("player-score").textContent = playerScore;
@@ -260,169 +263,34 @@
             document.getElementById("hit-button").disabled = false;
             document.getElementById("stand-button").disabled = false;
             playerTurn = true; // Added this line
-        }
-
-        // Function to handle player's hit
-        function hit() {
-            if (playerTurn) { // Added this conditional
-                const playerHand = document.getElementById("player-hand");
-                const playerScoreElement = document.getElementById("player-score");
-                const playerCards = getPlayerCards(); // Get the player's cards
-                const newCard = getRandomCard(); // Deal a new card
-                playerCards.push(newCard); // Add the new card to the player's hand
-                playerHand.innerHTML = ""; // Clear the hand display
-                playerCards.forEach(card => playerHand.appendChild(createCard(card.value, card.suit))); // Update hand display
-                const playerScore = calculateScore(playerCards);
-                playerScoreElement.textContent = playerScore; // Update score display
-
-                if (playerScore > 21) {
-                    document.getElementById("result").textContent = "Player Busts! Dealer Wins!";
-                    endGame();
-                }
-            }
-        }
-
-        // Function to handle dealer's turn
-        function dealerTurn() {
-            const dealerHand = document.getElementById("dealer-hand");
-            const dealerScoreElement = document.getElementById("dealer-score");
-            const dealerCards = getDealerCards();
-            let dealerScore = calculateScore(dealerCards);
-
-            //dealerHand.innerHTML = ""; // Remove this line
-
-            dealerCards.forEach(card => dealerHand.appendChild(createCard(card.value, card.suit)));
-            dealerScoreElement.textContent = dealerScore;
-
-            while (dealerScore <= 17) {
-                const newCard = getRandomCard();
-                dealerCards.push(newCard);
-                dealerScore = calculateScore(dealerCards);
-                //dealerHand.innerHTML = ""; // Remove this line
-                dealerCards.forEach(card => dealerHand.appendChild(createCard(card.value, card.suit)));
-                dealerScoreElement.textContent = dealerScore;
-            }
-
-            // Determine winner
-            document.getElementById("result").textContent = determineWinner(calculateScore(getPlayerCards()), dealerScore);
         }
 
         // Function to end the game
         function endGame() {
             document.getElementById("hit-button").disabled = true;
             document.getElementById("stand-button").disabled = true;
-            document.getElementById("blackjack-button").disabled = false;
-            document.getElementById("slots-button").disabled = false;
-            document.getElementById("roulette-button").disabled = false;
-
-            // Clear the game area when the game ends
-            const blackjackGame = document.getElementById("blackjack-game");
-            //blackjackGame.style.display = "none"; // Hide the game area
         }
 
-        // Function to get player's cards (for score calculation)
-        function getPlayerCards() {
-            const playerHand = document.getElementById("player-hand");
-            const playerCards = [];
-            for (let i = 0; i < playerHand.children.length; i++) {
-                const cardValue = playerHand.children[i].querySelector(".card-value").textContent;
-                const cardSuit = playerHand.children[i].querySelector("div:nth-child(2)").textContent;
-                playerCards.push({ value: cardValue, suit: cardSuit });
-            }
-            return playerCards;
-        }
-
-        // Function to get dealer's cards (for score calculation)
-        function getDealerCards() {
-            const dealerHand = document.getElementById("dealer-hand");
-            const dealerCards = [];
-            for (let i = 0; i < dealerHand.children.length; i++) {
-                const cardValue = dealerHand.children[i].querySelector(".card-value").textContent;
-                const cardSuit = dealerHand.children[i].querySelector("div:nth-child(2)").textContent;
-                dealerCards.push({ value: cardValue, suit: cardSuit });
-            }
-            return dealerCards;
-        }
-
-        // Event listeners for Blackjack button, Hit button, and Stand button
-        const blackjackButton = document.getElementById("blackjack-button");
-        blackjackButton.addEventListener("click", () => {
-            let betAmount = parseInt(prompt("Enter your bet amount:"));
-            if (isNaN(betAmount) || betAmount <= 0 || betAmount > currentMoney) {
-                alert("Invalid bet amount. Please enter a valid amount.");
-                return;
-            }
-            currentMoney -= betAmount;
-            document.getElementById("money-amount").textContent = currentMoney;
-            document.getElementById("blackjack-button").disabled = true;
-            document.getElementById("slots-button").disabled = true;
-            document.getElementById("roulette-button").disabled = true;
+        // Event listeners for buttons
+        document.getElementById("blackjack-button").addEventListener("click", () => {
+            const betAmount = 100; // Example bet amount
             startGame(betAmount);
         });
 
-        function startGame(betAmount) {
-            const blackjackGame = document.getElementById("blackjack-game");
-            blackjackGame.style.display = "flex"; // Show the game area
+        document.getElementById("hit-button").addEventListener("click", () => {
+            // Add hit logic here
+        });
 
-            // Initialize game variables
-            let playerCards = [getRandomCard(), getRandomCard()];
-            let dealerCards = [getRandomCard(), getRandomCard()];
-            let playerScore = calculateScore(playerCards);
-            let dealerScore = calculateScore(dealerCards);
-
-            // Display initial cards
-            const playerHand = document.getElementById("player-hand");
-            playerHand.innerHTML = "";
-            playerCards.forEach(card => playerHand.appendChild(createCard(card.value, card.suit)));
-
-            const dealerHand = document.getElementById("dealer-hand");
-            dealerHand.innerHTML = "";
-            dealerCards.forEach(card => dealerHand.appendChild(createCard(card.value, card.suit)));
-            //dealerHand.appendChild(createCard("?", "?")); // Hide dealer's second card
-
-            // Update score display
-            document.getElementById("player-score").textContent = playerScore;
-            document.getElementById("dealer-score").textContent = dealerScore;
-
-            // Check for initial Blackjack
-            if (playerScore === 21) {
-                document.getElementById("result").textContent = "Player Blackjack! You Win!";
-                endGame();
-                currentMoney += betAmount * 1.5; // 3:2 payout
-                document.getElementById("money-amount").textContent = currentMoney;
-                return;
-            }
-
-            // Player's turn
-            document.getElementById("hit-button").disabled = false;
-            document.getElementById("stand-button").disabled = false;
-            playerTurn = true; // Added this line
-        }
-
-        document.getElementById("hit-button").addEventListener("click", hit);
         document.getElementById("stand-button").addEventListener("click", () => {
-            endGame();
-            dealerTurn();
+            // Add stand logic here
         });
 
-        // Event listener for the "Back Home" button
-        const backHomeButton = document.getElementById("back-home-button");
-        backHomeButton.addEventListener("click", () => {
-            window.location.href = "https://www.replit.com/"; // Replace with your desired link
+        document.getElementById("back-home-button").addEventListener("click", () => {
+            // Add back to home logic here
         });
 
-        // Event listeners for other game buttons
-        const slotsButton = document.getElementById("slots-button");
-        slotsButton.addEventListener("click", () => {
-            // Implement slots game logic here
-            alert("Slots game clicked!");
-        });
-
-        const rouletteButton = document.getElementById("roulette-button");
-        rouletteButton.addEventListener("click", () => {
-            // Implement roulette game logic here
-            alert("Roulette game clicked!");
-        });
+        // Initial setup
+        document.getElementById("blackjack-game").style.display = "none"; // Hide game initially
     </script>
 </body>
 </html>
