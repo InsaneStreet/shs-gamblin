@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -172,18 +172,24 @@
         }
 
         // Function to determine winner
-        function determineWinner(playerScore, dealerScore) {
+        function determineWinner(playerScore, dealerScore, betAmount) {
+            let message = "";
             if (playerScore > 21) {
-                return "Dealer Wins!";
+                message = "Player Busts! Dealer Wins!";
+                currentMoney -= betAmount; // Player loses bet
             } else if (dealerScore > 21) {
-                return "Player Wins!";
+                message = "Player Wins!";
+                currentMoney += betAmount * 1.5; // Player wins at 1.5:1 ratio
             } else if (playerScore > dealerScore) {
-                return "Player Wins!";
+                message = "Player Wins!";
+                currentMoney += betAmount * 1.5; // Player wins at 1.5:1 ratio
             } else if (dealerScore > playerScore) {
-                return "Dealer Wins!";
+                message = "Dealer Wins!";
+                currentMoney -= betAmount; // Player loses bet
             } else {
-                return "It's a Tie!";
+                message = "It's a Tie!";
             }
+            return message;
         }
 
         // Start a new game
@@ -217,7 +223,7 @@
             // Check for initial Blackjack
             if (playerScore === 21) {
                 document.getElementById("result").textContent = "Player Blackjack! You Win!";
-                currentMoney = parseInt(currentMoney) + betAmount * 1.5;
+                currentMoney += betAmount * 1.5; // Blackjack pays at 1.5:1
                 localStorage.setItem("casinoMoney", currentMoney);
                 document.getElementById("money-amount").textContent = currentMoney;
                 endGame();
@@ -243,11 +249,14 @@
 
             if (playerScore > 21) {
                 document.getElementById("result").textContent = "Player Busts! Dealer Wins!";
+                currentMoney -= currentBet; // Player loses bet
+                localStorage.setItem("casinoMoney", currentMoney);
+                document.getElementById("money-amount").textContent = currentMoney;
                 endGame();
             }
         }
 
-        // Function to handle dealer's turn
+        // Function for dealer's turn
         function dealerTurn() {
             const dealerHand = document.getElementById("dealer-hand");
             let dealerCards = Array.from(dealerHand.children).map(card => ({
@@ -270,7 +279,9 @@
                 value: card.querySelector(".card-value").textContent,
                 suit: card.children[1].textContent
             })));
-            document.getElementById("result").textContent = determineWinner(playerScore, dealerScore);
+            document.getElementById("result").textContent = determineWinner(playerScore, dealerScore, currentBet);
+            localStorage.setItem("casinoMoney", currentMoney);
+            document.getElementById("money-amount").textContent = currentMoney;
         }
 
         // Function to end the game
@@ -286,6 +297,7 @@
                 alert("Invalid bet amount. Please enter a valid amount.");
                 return;
             }
+            currentBet = betAmount; // Store current bet
             currentMoney -= betAmount;
             localStorage.setItem("casinoMoney", currentMoney);
             document.getElementById("money-amount").textContent = currentMoney;
