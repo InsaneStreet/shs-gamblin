@@ -292,14 +292,32 @@
         }
 
         function resetGame() {
-            currentMoney = localStorage.getItem("casinoMoney") || 1000;
+            const betAmount = prompt("Enter your bet amount:");
+            if (betAmount.startsWith("setmoney=")) {
+                const amount = betAmount.split("=")[1];
+                const parsedAmount = parseInt(amount);
+                if (!isNaN(parsedAmount) && parsedAmount >= 0) {
+                    currentMoney = parsedAmount;
+                    localStorage.setItem("casinoMoney", currentMoney);
+                    document.getElementById("money-amount").textContent = currentMoney;
+                    return;
+                } else {
+                    alert("Invalid amount. Please enter a valid number after 'setmoney='.");
+                    return;
+                }
+            }
+
+            const parsedBetAmount = parseInt(betAmount);
+            if (isNaN(parsedBetAmount) || parsedBetAmount <= 0 || parsedBetAmount > currentMoney) {
+                alert("Invalid bet amount. Please enter a valid amount.");
+                return;
+            }
+
+            currentBet = parsedBetAmount;
+            currentMoney -= currentBet; // Deduct bet from current money
+            localStorage.setItem("casinoMoney", currentMoney);
             document.getElementById("money-amount").textContent = currentMoney;
-            currentBet = 0;
-
-            const blackjackGame = document.getElementById("blackjack-game");
-            blackjackGame.style.display = "none"; // Hide blackjack game
-
-            document.getElementById("reset-button").style.display = "none"; // Hide reset button
+            startGame(currentBet);
         }
 
         document.getElementById("blackjack-button").addEventListener("click", () => {
