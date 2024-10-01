@@ -108,7 +108,6 @@
             <button class="button" id="blackjack-button">Blackjack</button>
             <button class="button" id="roulette-button">Roulette</button>
             <div class="money-counter">Money: <span id="money-amount">1000</span></div>
-            <button class="button" id="back-home-button">Back Home</button>
         </div>
         <div class="right-column">
             <div class="top-div">Welcome to the Casino!</div>
@@ -307,10 +306,6 @@
         document.getElementById("stand-button").addEventListener("click", () => {
             endGame();
             dealerTurn();
-        });
-
-        document.getElementById("back-home-button").addEventListener("click", () => {
-            window.location.href = "https://www.replit.com/"; // Replace with your desired link
         });
 
         document.getElementById("slots-button").addEventListener("click", () => {
