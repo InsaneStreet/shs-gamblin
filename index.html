@@ -1,4 +1,4 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -179,10 +179,10 @@
                 currentMoney -= betAmount; // Player loses bet
             } else if (dealerScore > 21) {
                 message = "Player Wins!";
-                currentMoney += betAmount * 1.5; // Player wins at 1.5:1 ratio
+                currentMoney += betAmount * 2.5; // Player wins at 2.5:1 ratio
             } else if (playerScore > dealerScore) {
                 message = "Player Wins!";
-                currentMoney += betAmount * 1.5; // Player wins at 1.5:1 ratio
+                currentMoney += betAmount * 2.5; // Player wins at 2.5:1 ratio
             } else if (dealerScore > playerScore) {
                 message = "Dealer Wins!";
                 currentMoney -= betAmount; // Player loses bet
@@ -223,7 +223,7 @@
             // Check for initial Blackjack
             if (playerScore === 21) {
                 document.getElementById("result").textContent = "Player Blackjack! You Win!";
-                currentMoney += betAmount * 1.5; // Blackjack pays at 1.5:1
+                currentMoney += betAmount * 2.5; // Blackjack pays at 2.5:1
                 localStorage.setItem("casinoMoney", currentMoney);
                 document.getElementById("money-amount").textContent = currentMoney;
                 endGame();
