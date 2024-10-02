@@ -189,26 +189,27 @@
             }
         }
 
-        function determineWinner(playerScore, dealerScore, betAmount) {
-            let message = "";
-            const multiplier = calculateMultiplier(betAmount);
+      function determineWinner(playerScore, dealerScore, betAmount) {
+    let message = "";
+    const multiplier = calculateMultiplier(betAmount);
 
-            if (playerScore > 21) {
-                message = "Player Busts! Dealer Wins!";
-            } else if (dealerScore > 21) {
-                message = "Player Wins!";
-                setMoney(Math.ceil(betAmount * multiplier)); // Round up winnings
-            } else if (playerScore > dealerScore) {
-                message = "Player Wins!";
-                setMoney(Math.ceil(betAmount * multiplier)); // Round up winnings
-            } else if (dealerScore > playerScore) {
-                message = "Dealer Wins!";
-            } else {
-                message = "It's a Tie!";
-                setMoney(betAmount); // Return the bet amount to the player
-            }
-            return message;
-        }
+    if (playerScore > 21) {
+        message = "Player Busts! Dealer Wins!";
+    } else if (dealerScore > 21) {
+        message = "Player Wins!";
+        currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
+    } else if (playerScore > dealerScore) {
+        message = "Player Wins!";
+        currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
+    } else if (dealerScore > playerScore) {
+        message = "Dealer Wins!";
+    } else {
+        message = "It's a Tie!";
+        currentMoney += betAmount; // Return the bet amount
+    }
+    return message;
+}
+
 
         function startGame(betAmount) {
             const blackjackGame = document.getElementById("blackjack-game");
