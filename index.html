@@ -199,6 +199,7 @@
                 message = "Dealer Wins!";
             } else {
                 message = "It's a Tie!";
+                currentMoney += betAmount; //Return for tie
             }
             return message;
         }
@@ -266,7 +267,7 @@
             }));
             let dealerScore = calculateScore(dealerCards);
 
-            while (dealerScore < 17) {
+            while (dealerScore <= 17) {
                 const newCard = getRandomCard();
                 dealerHand.appendChild(createCard(newCard.value, newCard.suit));
                 dealerCards.push(newCard);
