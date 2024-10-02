@@ -134,6 +134,12 @@
         document.getElementById("money-amount").textContent = currentMoney;
         let currentBet = 0;
 
+        function setMoney(amount) {
+            currentMoney += amount;
+            localStorage.setItem("casinoMoney", currentMoney);
+            document.getElementById("money-amount").textContent = currentMoney;
+        }
+
         function createCard(value, suit) {
             const card = document.createElement("div");
             card.classList.add("card");
@@ -191,15 +197,15 @@
                 message = "Player Busts! Dealer Wins!";
             } else if (dealerScore > 21) {
                 message = "Player Wins!";
-                currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
+                setMoney(Math.ceil(betAmount * multiplier)); // Round up winnings
             } else if (playerScore > dealerScore) {
                 message = "Player Wins!";
-                currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
+                setMoney(Math.ceil(betAmount * multiplier)); // Round up winnings
             } else if (dealerScore > playerScore) {
                 message = "Dealer Wins!";
             } else {
                 message = "It's a Tie!";
-                currentMoney += betAmount; // Return the bet amount to the player
+                setMoney(betAmount); // Return the bet amount to the player
             }
             return message;
         }
@@ -228,7 +234,7 @@
 
             if (playerScore === 21) {
                 document.getElementById("result").textContent = "Player Blackjack! You Win!";
-                currentMoney += Math.ceil(betAmount * calculateMultiplier(betAmount)); // Round up winnings
+                setMoney(Math.ceil(betAmount * calculateMultiplier(betAmount))); // Round up winnings
                 return;
             }
 
@@ -276,7 +282,7 @@
         document.getElementById("reset-button").onclick = function () {
             document.getElementById("blackjack-game").style.display = "none";
             document.getElementById("reset-button").style.display = "none";
-            currentMoney = localStorage.getItem("casinoMoney");
+            currentMoney = localStorage.getItem("casinoMoney") || 1000;
             document.getElementById("money-amount").textContent = currentMoney;
         };
     </script>
