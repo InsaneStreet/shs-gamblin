@@ -110,6 +110,7 @@
         <div class="left-column">
             <button class="button" id="blackjack-button">Blackjack</button>
             <div class="money-counter">Money: <span id="money-amount">1000</span></div>
+            <button class="button" id="set-money-button">Set Money</button>
         </div>
         <div class="right-column">
             <div class="top-div">Welcome to the Casino!</div>
@@ -131,6 +132,18 @@
         localStorage.setItem("casinoMoney", currentMoney);
         document.getElementById("money-amount").textContent = currentMoney;
         let currentBet = 0;
+
+        function setMoney() {
+            let newMoney = prompt("Enter the amount of money:", currentMoney);
+            newMoney = parseInt(newMoney, 10);
+            if (!isNaN(newMoney) && newMoney >= 0) {
+                currentMoney = newMoney;
+                localStorage.setItem("casinoMoney", currentMoney);
+                document.getElementById("money-amount").textContent = currentMoney;
+            } else {
+                alert("Invalid amount. Please enter a positive number.");
+            }
+        }
 
         function createCard(value, suit) {
             const card = document.createElement("div");
@@ -250,8 +263,6 @@
 
             if (playerScore > 21) {
                 document.getElementById("result").textContent = "Player Busts! Dealer Wins!";
-                localStorage.setItem("casinoMoney", currentMoney);
-                document.getElementById("money-amount").textContent = currentMoney;
                 endGame();
             }
         }
@@ -321,6 +332,7 @@
         document.getElementById("hit-button").addEventListener("click", hit);
         document.getElementById("stand-button").addEventListener("click", stand);
         document.getElementById("reset-button").addEventListener("click", resetGame);
+        document.getElementById("set-money-button").addEventListener("click", setMoney);
     </script>
 </body>
 </html>
