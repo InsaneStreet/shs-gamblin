@@ -361,8 +361,22 @@
             alert("Slots game clicked!");
         });
 
+        // Roulette game logic
         document.getElementById("roulette-button").addEventListener("click", () => {
-            alert("Roulette game clicked!");
+            const betNumber = prompt("Enter a number to bet on (0-36):");
+            const parsedBetNumber = parseInt(betNumber);
+            
+            if (isNaN(parsedBetNumber) || parsedBetNumber < 0 || parsedBetNumber > 36) {
+                alert("Invalid number. Please enter a number between 0 and 36.");
+                return;
+            }
+
+            const winningNumber = Math.floor(Math.random() * 37);
+            const resultMessage = (parsedBetNumber === winningNumber) 
+                ? `You won! The winning number was ${winningNumber}.`
+                : `You lost! The winning number was ${winningNumber}.`;
+
+            alert(resultMessage);
         });
     </script>
 </body>
