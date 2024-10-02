@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Casino Games</title>
+    <title>Casino Games - Blackjack</title>
     <style>
         body {
             margin: 0;
@@ -108,9 +108,7 @@
 <body>
     <div class="container">
         <div class="left-column">
-            <button class="button" id="slots-button">Slots</button>
             <button class="button" id="blackjack-button">Blackjack</button>
-            <button class="button" id="roulette-button">Roulette</button>
             <div class="money-counter">Money: <span id="money-amount">1000</span></div>
         </div>
         <div class="right-column">
@@ -269,17 +267,22 @@
             while (dealerScore < 17) {
                 const newCard = getRandomCard();
                 dealerHand.appendChild(createCard(newCard.value, newCard.suit));
-                dealerCards.push(newCard);
+                dealerCards = Array.from(dealerHand.children).map(card => ({
+                    value: card.querySelector(".card-value").textContent,
+                    suit: card.children[1].textContent
+                }));
                 dealerScore = calculateScore(dealerCards);
             }
 
             document.getElementById("dealer-score").textContent = dealerScore;
-            const playerScore = calculateScore(Array.from(document.getElementById("player-hand").children).map(card => ({
-                value: card.querySelector(".card-value").textContent,
-                suit: card.children[1].textContent
-            })));
+            return dealerScore;
+        }
 
-            document.getElementById("result").textContent = determineWinner(playerScore, dealerScore, currentBet);
+        function stand() {
+            const playerScore = parseInt(document.getElementById("player-score").textContent, 10);
+            const dealerScore = dealerTurn();
+            const resultMessage = determineWinner(playerScore, dealerScore, currentBet);
+            document.getElementById("result").textContent = resultMessage;
             localStorage.setItem("casinoMoney", currentMoney);
             document.getElementById("money-amount").textContent = currentMoney;
             endGame();
@@ -288,83 +291,36 @@
         function endGame() {
             document.getElementById("hit-button").disabled = true;
             document.getElementById("stand-button").disabled = true;
-            document.getElementById("reset-button").style.display = "block"; // Show reset button
+            document.getElementById("reset-button").style.display = "block"; // Show reset button after game ends
         }
 
         function resetGame() {
-            const betAmount = prompt("Enter your bet amount:");
-            if (betAmount.startsWith("setmoney=")) {
-                const amount = betAmount.split("=")[1];
-                const parsedAmount = parseInt(amount);
-                if (!isNaN(parsedAmount) && parsedAmount >= 0) {
-                    currentMoney = parsedAmount;
-                    localStorage.setItem("casinoMoney", currentMoney);
-                    document.getElementById("money-amount").textContent = currentMoney;
-                    return;
-                } else {
-                    alert("Invalid amount. Please enter a valid number after 'setmoney='.");
-                    return;
-                }
-            }
-
-            const parsedBetAmount = parseInt(betAmount);
-            if (isNaN(parsedBetAmount) || parsedBetAmount <= 0 || parsedBetAmount > currentMoney) {
-                alert("Invalid bet amount. Please enter a valid amount.");
-                return;
-            }
-
-            currentBet = parsedBetAmount;
-            currentMoney -= currentBet; // Deduct bet from current money
-            localStorage.setItem("casinoMoney", currentMoney);
-            document.getElementById("money-amount").textContent = currentMoney;
-            startGame(currentBet);
+            document.getElementById("blackjack-game").style.display = "none"; // Hide game container
+            document.getElementById("hit-button").disabled = false;
+            document.getElementById("stand-button").disabled = false;
+            document.getElementById("reset-button").style.display = "none"; // Hide reset button
         }
 
         document.getElementById("blackjack-button").addEventListener("click", () => {
-            let betAmount = prompt("Enter your bet amount:");
-            if (betAmount.startsWith("setmoney=")) {
-                const amount = betAmount.split("=")[1];
-                const parsedAmount = parseInt(amount);
-                if (!isNaN(parsedAmount) && parsedAmount >= 0) {
-                    currentMoney = parsedAmount;
-                    localStorage.setItem("casinoMoney", currentMoney);
-                    document.getElementById("money-amount").textContent = currentMoney;
-                    return;
-                } else {
-                    alert("Invalid amount. Please enter a valid number after 'setmoney='.");
-                    return;
-                }
-            }
-
-            betAmount = parseInt(betAmount);
-            if (isNaN(betAmount) || betAmount <= 0 || betAmount > currentMoney) {
-                alert("Invalid bet amount. Please enter a valid amount.");
+            let betAmount = parseInt(prompt("Enter your bet amount:", "100"), 10);
+            if (betAmount > currentMoney) {
+                alert("You don't have enough money to place this bet.");
                 return;
             }
-
+            if (isNaN(betAmount) || betAmount <= 0) {
+                alert("Invalid bet amount.");
+                return;
+            }
             currentBet = betAmount;
-            currentMoney -= betAmount; // Deduct bet from current money
+            currentMoney -= betAmount;
             localStorage.setItem("casinoMoney", currentMoney);
             document.getElementById("money-amount").textContent = currentMoney;
             startGame(betAmount);
         });
 
         document.getElementById("hit-button").addEventListener("click", hit);
-        document.getElementById("stand-button").addEventListener("click", () => {
-            endGame();
-            dealerTurn();
-        });
-
+        document.getElementById("stand-button").addEventListener("click", stand);
         document.getElementById("reset-button").addEventListener("click", resetGame);
-
-        document.getElementById("slots-button").addEventListener("click", () => {
-            alert("Slots game clicked!");
-        });
-
-        document.getElementById("roulette-button").addEventListener("click", () => {
-            alert("Roulette game clicked!");
-        });
     </script>
 </body>
 </html>
-
