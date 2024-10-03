@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHS Blackjack</title>
+    <title>SHS Dice Rollers</title>
     <style>
         body {
             margin: 0;
@@ -38,18 +38,6 @@
             margin-bottom: 10px;
             cursor: pointer;
             font-size: 18px;
-        }
-
-        .other-button {
-            background-color: rgb(10, 10, 240);
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            font-size: 18px;
-            margin-top: 380px;
         }
 
         .money-counter {
@@ -122,7 +110,6 @@
         <div class="left-column"> 
             <button class="button" id="blackjack-button">Blackjack</button>
             <div class="money-counter">Money: <span id="money-amount">1000</span></div>
-            <button class="other-button" id="Restart">Restart</button>
             <div style="margin-top: auto; padding-top: 10px; font-size: 14px; color: gray;">
                 Made by Eduardo Tejada
             </div>
@@ -196,10 +183,6 @@
             } else {
                 return 4.5;
             }
-        }
-
-        function restartGame {
-            
         }
 
         function determineWinner(playerScore, dealerScore, betAmount) {
@@ -380,12 +363,6 @@
         document.getElementById("slots-button").addEventListener("click", () => {
             alert("Slots game clicked!");
         });
-
-        document.getElementById("Restart").addEventListener("click", function () {
-    currentMoney = 1000; // Set current money to 1000
-    localStorage.setItem("casinoMoney", currentMoney); // Update localStorage
-    document.getElementById("money-amount").textContent = currentMoney; // Update displayed money
-});
 
         document.getElementById("roulette-button").addEventListener("click", () => {
             alert("Roulette game clicked!");
