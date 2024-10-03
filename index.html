@@ -226,39 +226,49 @@
             return message;
         }
 
-        function startGame(betAmount) {
-            const blackjackGame = document.getElementById("blackjack-game");
-            blackjackGame.style.display = "flex";
+        let playerCards = [];
+        let dealerCards = [];
+        let playerScore = 0;
+        let dealerScore = 0;
 
+        function resetGame() {
+            playerCards = [];
+            dealerCards = [];
+            playerScore = 0;
+            dealerScore = 0;
             document.getElementById("player-hand").innerHTML = "";
             document.getElementById("dealer-hand").innerHTML = "";
             document.getElementById("player-score").textContent = "0";
             document.getElementById("dealer-score").textContent = "0";
             document.getElementById("result").textContent = "";
+            document.getElementById("hit-button").style.display = "inline-block";
+            document.getElementById("stand-button").style.display = "inline-block";
+            document.getElementById("reset-button").style.display = "none"; // Hide reset button
+            document.getElementById("blackjack-game").style.display = "flex"; // Show game area
+        }
 
-            let playerCards = [getRandomCard()];
-            let dealerCards = [getRandomCard()];
+        function startGame(betAmount) {
+            resetGame(); // Reset game state at the start
 
-            let playerScore = calculateScore(playerCards);
-            let dealerScore = calculateScore(dealerCards);
+            const blackjackGame = document.getElementById("blackjack-game");
+            blackjackGame.style.display = "flex";
 
-            playerCards.forEach(card => document.getElementById("player-hand").appendChild(createCard(card.value, card.suit)));
-            dealerCards.forEach(card => document.getElementById("dealer-hand").appendChild(createCard(card.value, card.suit)));
+            playerCards.push(getRandomCard());
+            dealerCards.push(getRandomCard());
+
+            playerScore = calculateScore(playerCards);
+            dealerScore = calculateScore(dealerCards);
+
+            playerCards.forEach(card => {
+                document.getElementById("player-hand").appendChild(createCard(card.value, card.suit));
+            });
+
+            dealerCards.forEach(card => {
+                document.getElementById("dealer-hand").appendChild(createCard(card.value, card.suit));
+            });
 
             document.getElementById("player-score").textContent = playerScore;
             document.getElementById("dealer-score").textContent = dealerScore;
-
-            if (playerScore === 21) {
-                document.getElementById("result").textContent = "Player Blackjack! You Win!";
-                winCount++;
-                localStorage.setItem("winCount", winCount);
-                document.getElementById("win-count").textContent = winCount;
-                currentMoney += Math.ceil(betAmount * calculateMultiplier(betAmount)); // Round up winnings
-                localStorage.setItem("casinoMoney", currentMoney);
-                document.getElementById("money-amount").textContent = currentMoney;
-                endGame();
-                return;
-            }
 
             document.getElementById("hit-button").addEventListener("click", function () {
                 const newCard = getRandomCard();
@@ -308,10 +318,7 @@
         });
 
         document.getElementById("reset-button").addEventListener("click", function () {
-            document.getElementById("hit-button").style.display = "inline-block";
-            document.getElementById("stand-button").style.display = "inline-block";
-            document.getElementById("reset-button").style.display = "none";
-            document.getElementById("blackjack-game").style.display = "none";
+            resetGame(); // Resets the game without hiding it
         });
     </script>
 </body>
