@@ -39,16 +39,6 @@
             cursor: pointer;
             font-size: 18px;
         }
-        .other-button {
-            background-color: rgb(54, 54, 247);
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            font-size: 18px;
-        }
 
         .money-counter {
             font-size: 24px;
@@ -120,8 +110,6 @@
         <div class="left-column"> 
             <button class="button" id="blackjack-button">Blackjack</button>
             <div class="money-counter">Money: <span id="money-amount">1000</span></div>
-            <div class="win-loss-counter">
-                Wins: <span id="win-count">0</span> | Losses: <span id="loss-count">0</span>
             <div style="margin-top: auto; padding-top: 10px; font-size: 14px; color: gray;">
                 Made by Eduardo Tejada
             </div>
@@ -143,11 +131,6 @@
     </div>
 
     <script>
-        let winCount = localStorage.getItem("winCount") || 0;
-let lossCount = localStorage.getItem("lossCount") || 0;
-document.getElementById("win-count").textContent = winCount;
-document.getElementById("loss-count").textContent = lossCount;
-
         let currentMoney = localStorage.getItem("casinoMoney") || 1000;
         localStorage.setItem("casinoMoney", currentMoney);
         document.getElementById("money-amount").textContent = currentMoney;
@@ -203,36 +186,25 @@ document.getElementById("loss-count").textContent = lossCount;
         }
 
         function determineWinner(playerScore, dealerScore, betAmount) {
-    let message = "";
-    const multiplier = calculateMultiplier(betAmount);
+            let message = "";
+            const multiplier = calculateMultiplier(betAmount);
 
-    if (playerScore > 21) {
-        message = "Player Busts! Dealer Wins!";
-        lossCount++;
-    } else if (dealerScore > 21) {
-        message = "Player Wins!";
-        winCount++;
-        currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
-    } else if (playerScore > dealerScore) {
-        message = "Player Wins!";
-        winCount++;
-        currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
-    } else if (dealerScore > playerScore) {
-        message = "Dealer Wins!";
-        lossCount++;
-    } else {
-        message = "It's a Tie!";
-        currentMoney += betAmount; //Return for tie
-    }
-
-    localStorage.setItem("winCount", winCount);
-    localStorage.setItem("lossCount", lossCount);
-    document.getElementById("win-count").textContent = winCount;
-    document.getElementById("loss-count").textContent = lossCount;
-
-    return message;
-}
-
+            if (playerScore > 21) {
+                message = "Player Busts! Dealer Wins!";
+            } else if (dealerScore > 21) {
+                message = "Player Wins!";
+                currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
+            } else if (playerScore > dealerScore) {
+                message = "Player Wins!";
+                currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
+            } else if (dealerScore > playerScore) {
+                message = "Dealer Wins!";
+            } else {
+                message = "It's a Tie!";
+                currentMoney += betAmount; //Return for tie
+            }
+            return message;
+        }
 
         function startGame(betAmount) {
             const blackjackGame = document.getElementById("blackjack-game");
@@ -385,7 +357,7 @@ document.getElementById("loss-count").textContent = lossCount;
             endGame();
             dealerTurn();
         });
-       
+
         document.getElementById("reset-button").addEventListener("click", resetGame);
 
         document.getElementById("slots-button").addEventListener("click", () => {
@@ -395,9 +367,6 @@ document.getElementById("loss-count").textContent = lossCount;
         document.getElementById("roulette-button").addEventListener("click", () => {
             alert("Roulette game clicked!");
         });
-        document.getElementById("roulette-button").addEventListener("click", () => {
-            alert("Roulette game clicked!");
     </script>
 </body>
 </html>
-
