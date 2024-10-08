@@ -174,11 +174,11 @@
         }
 
         function calculateMultiplier(betAmount) {
-            if (betAmount < 100) {
+            if (betAmount <= 99) {
                 return 1.5;
-            } else if (betAmount < 500) {
+            } else if (betAmount <= 499) {
                 return 2.5;
-            } else if (betAmount < 1000) {
+            } else if (betAmount <= 999) {
                 return 3.5;
             } else {
                 return 4.5;
