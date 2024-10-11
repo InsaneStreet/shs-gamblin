@@ -196,7 +196,7 @@
                 currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
             } else if (playerScore > dealerScore) {
                 message = "Player Wins!";
-                currentMoney += Math.ceil(betAmount * multiplier); // Round up winnings
+                currentMoney += Math.ceil(betAmount * multiplier) += betAmount; // Round up winnings
             } else if (dealerScore > playerScore) {
                 message = "Dealer Wins!";
             } else {
